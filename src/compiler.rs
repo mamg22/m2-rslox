@@ -268,8 +268,8 @@ impl<'s> Compiler<'s> {
     }
 
     fn number(&mut self) {
-        let value: Value = self.parser.previous.as_ref().unwrap().span.parse().unwrap();
-        self.emit_constant(value);
+        let value: f64 = self.parser.previous.as_ref().unwrap().span.parse().unwrap();
+        self.emit_constant(Value::Number(value));
     }
 
     fn unary(&mut self) {

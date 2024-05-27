@@ -26,7 +26,7 @@ pub fn disassemble_instruction(chunk: &Chunk, offset: usize) {
         OpCode::Multiply | OpCode::Divide 
             => eprintln!("{:?}", instruction),
         OpCode::Constant(id) => {
-            let val = chunk.constants()[*id as usize];
+            let val = &chunk.constants()[*id as usize];
             eprintln!("{:?} {:?}", instruction, val);
         },
     };

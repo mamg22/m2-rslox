@@ -43,12 +43,12 @@ fn repl(vm: &mut VM) {
 fn run_file(vm: &mut VM, path: &str) {
     let source = fs::read_to_string(path).unwrap();
 
-    let result: InterpretResult = vm.interpret(&source);
+    let result: Result<(), InterpretResult> = vm.interpret(&source);
 
     let exit_code = match result {
-        InterpretResult::CompileError => 65,
-        InterpretResult::RuntimeError => 70,
-        InterpretResult::Ok => 0,
+        Ok(_) => 0,
+        Err(InterpretResult::CompileError) => 65,
+        Err(InterpretResult::RuntimeError) => 70,
     };
     process::exit(exit_code);
 }
