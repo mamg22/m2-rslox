@@ -1,6 +1,7 @@
 use std::ops;
 
 use crate::chunk::{Chunk, OpCode};
+use crate::compiler::Compiler;
 use crate::value::Value;
 use crate::debug::disassemble_instruction;
 
@@ -11,23 +12,38 @@ pub enum InterpretResult {
 }
 
 pub struct VM {
-    chunk: Chunk,
+    chunk: Option<Chunk>,
     ip: usize,
     stack: Vec<Value>,
 }
 
 impl VM {
-    pub fn new(chunk: Chunk) -> Self {
-        Self { chunk, ip: 0, stack: Vec::new() }
+    pub fn new() -> Self {
+        Self { chunk: None, ip: 0, stack: Vec::new() }
     }
 
-    pub fn interpret(&mut self) -> InterpretResult {
+    pub fn interpret(&mut self, source: &str) -> InterpretResult {
+        let mut compiler = Compiler::new(source);
+
+        match compiler.compile() {
+            Ok(chunk) => {
+                self.chunk = Some(chunk);
+                self.ip = 0;
+            },
+            Err(_) => { return InterpretResult::CompileError }
+        }
+
         self.run()
     }
 
     pub fn run(&mut self) -> InterpretResult {
+        if self.chunk().code().len() == 0 {
+            return InterpretResult::Ok;
+        }
         loop {
-            let instruction = &self.chunk.code()[self.ip];
+            let ip = self.ip;
+            self.ip += 1;
+            let instruction: &OpCode = &self.chunk().code()[ip];
 
             if cfg!(feature = "debug_trace_execution") {
                 let stack_str: String = self.stack.iter()
@@ -35,10 +51,9 @@ impl VM {
                     .collect();
 
                 eprintln!("   Stack: {stack_str}");
-                disassemble_instruction(&self.chunk, self.ip)
+                disassemble_instruction(&self.chunk(), ip)
             }
 
-            self.ip += 1;
             match instruction {
                 OpCode::Return => {
                     eprintln!("{}", self.pop());
@@ -62,7 +77,7 @@ impl VM {
     }
 
     fn read_constant(&self, id: usize) -> &Value {
-        &self.chunk.constants()[id]
+        &self.chunk().constants()[id]
     }
 
     fn binary_op(&mut self, op_func: fn(Value, Value) -> Value) {
@@ -79,5 +94,9 @@ impl VM {
 
     fn pop(&mut self) -> Value {
         self.stack.pop().unwrap()
+    }
+
+    fn chunk(&self) -> &Chunk {
+        self.chunk.as_ref().expect("No chunk loaded in VM")
     }
 }

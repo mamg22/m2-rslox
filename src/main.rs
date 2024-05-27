@@ -1,25 +1,54 @@
-use m2_rslox::chunk::{Chunk, OpCode};
+use std::env;
+use std::fs;
+use std::io;
+use std::process;
+
+use m2_rslox::vm::InterpretResult;
 use m2_rslox::vm::VM;
 
 fn main() {
-    let mut chunk = Chunk::new();
+    let argv: Vec<String> = env::args().collect();
 
-    let constant = chunk.add_constant(1.2);
-    chunk.write(OpCode::Constant(constant), 123);
+    let mut vm = VM::new();
 
-    let constant = chunk.add_constant(3.4);
-    chunk.write(OpCode::Constant(constant), 123);
+    match argv.len() {
+        1 => repl(&mut vm),
+        2 => run_file(&mut vm, &argv[1]),
+        _ => {
+            eprintln!("Usage: {} [path]", argv[0]);
+            process::exit(64);
+        }
+    }
+}
 
-    chunk.write(OpCode::Add, 123);
+fn repl(vm: &mut VM) {
+    let stdin = io::stdin();
+    let mut buf = String::new();
 
-    let constant = chunk.add_constant(5.6);
-    chunk.write(OpCode::Constant(constant), 123);
+    loop {
+        buf.clear();
+        eprint!("> ");
 
-    chunk.write(OpCode::Divide, 123);
-    chunk.write(OpCode::Negate, 123);
+        let bytes_read = stdin.read_line(&mut buf).unwrap();
 
-    chunk.write(OpCode::Return, 123);
+        if bytes_read == 0 {
+            eprintln!("");
+            process::exit(0);
+        }
 
-    let mut vm = VM::new(chunk);
-    vm.interpret();
+        vm.interpret(&buf);
+    }
+}
+
+fn run_file(vm: &mut VM, path: &str) {
+    let source = fs::read_to_string(path).unwrap();
+
+    let result: InterpretResult = vm.interpret(&source);
+
+    let exit_code = match result {
+        InterpretResult::CompileError => 65,
+        InterpretResult::RuntimeError => 70,
+        InterpretResult::Ok => 0,
+    };
+    process::exit(exit_code);
 }
