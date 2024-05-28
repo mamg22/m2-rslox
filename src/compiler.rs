@@ -178,6 +178,9 @@ impl<'s> Into<ParseRule<'s>> for TokenType {
             Self::Number => parse_rule!(number, None, None),
             Self::False | Self::True | Self::Nil => parse_rule!(literal, None, None),
             Self::Bang => parse_rule!(unary, None, None),
+            Self::BangEqual | Self::EqualEqual => parse_rule!(None, binary, Equality),
+            Self::Greater | Self::GreaterEqual |
+            Self::Less | Self::LessEqual => parse_rule!(None, binary, Comparison),
             _ => parse_rule!(None, None, None),
         }
     }
@@ -260,6 +263,21 @@ impl<'s> Compiler<'s> {
             TokenType::Minus => self.emit(OpCode::Substract),
             TokenType::Star => self.emit(OpCode::Multiply),
             TokenType::Slash => self.emit(OpCode::Divide),
+            TokenType::BangEqual => {
+                self.emit(OpCode::Equal);
+                self.emit(OpCode::Not);
+            },
+            TokenType::EqualEqual => self.emit(OpCode::Equal),
+            TokenType::Greater => self.emit(OpCode::Greater),
+            TokenType::GreaterEqual => {
+                self.emit(OpCode::Less);
+                self.emit(OpCode::Not);
+            },
+            TokenType::Less => self.emit(OpCode::Less),
+            TokenType::LessEqual => {
+                self.emit(OpCode::Greater);
+                self.emit(OpCode::Not);
+            },
             _ => unreachable!(),
         }
     }

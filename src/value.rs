@@ -1,7 +1,8 @@
+use std::cmp;
 use std::fmt::Display;
 use std::ops;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Value {
     Nil,
     Bool(bool),
@@ -84,5 +85,14 @@ impl ops::Not for Value {
 
     fn not(self) -> Self::Output {
         Self::Bool(self.is_falsey())
+    }
+}
+
+impl cmp::PartialOrd for Value {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        match (self, other) {
+            (Self::Number(a), Self::Number(b)) => a.partial_cmp(b),
+            _ => panic!("Cannot compare non-number Values")
+        }
     }
 }

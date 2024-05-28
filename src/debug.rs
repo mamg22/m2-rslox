@@ -25,7 +25,7 @@ pub fn disassemble_instruction(chunk: &Chunk, offset: usize) {
         OpCode::Add | OpCode::Substract |
         OpCode::Multiply | OpCode::Divide |
         OpCode::Nil | OpCode::True | OpCode::False |
-        OpCode::Not
+        OpCode::Not | OpCode::Equal | OpCode::Greater | OpCode::Less
             => eprintln!("{:?}", instruction),
         OpCode::Constant(id) => {
             let val = &chunk.constants()[*id as usize];

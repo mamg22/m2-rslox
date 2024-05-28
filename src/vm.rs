@@ -1,3 +1,4 @@
+use std::cmp;
 use std::ops;
 
 use crate::chunk::{Chunk, OpCode};
@@ -76,6 +77,17 @@ impl VM {
                 OpCode::Nil => self.push(Value::Nil),
                 OpCode::True => self.push(Value::Bool(true)),
                 OpCode::False => self.push(Value::Bool(false)),
+                OpCode::Equal => {
+                    let b = self.pop();
+                    let a = self.pop();
+                    self.push(Value::Bool(a == b));
+                }
+                OpCode::Greater => {
+                    self.binary_cmp(cmp::PartialOrd::gt)?
+                },
+                OpCode::Less => {
+                    self.binary_cmp(cmp::PartialOrd::lt)?
+                },
                 OpCode::Add => self.binary_op(ops::Add::add)?,
                 OpCode::Substract => self.binary_op(ops::Sub::sub)?,
                 OpCode::Multiply => self.binary_op(ops::Mul::mul)?,
@@ -113,7 +125,24 @@ impl VM {
                 Ok(())
             },
             _ => {
-                self.runtime_error("Opernds must be numbers");
+                self.runtime_error("Operands must be numbers");
+                Err(InterpretResult::RuntimeError)
+            }
+        }
+    }
+
+    fn binary_cmp(&mut self, cmp_func: fn(&Value, &Value) -> bool) -> Result<(), InterpretResult> {
+        match (self.peek(0), self.peek(1)) {
+            (Value::Number(_), Value::Number(_)) => {
+                let b = self.pop();
+                let a = self.pop();
+                
+                let result = cmp_func(&a, &b);
+                self.push(Value::Bool(result));
+                Ok(())
+            },
+            _ => {
+                self.runtime_error("Operands must be numbers");
                 Err(InterpretResult::RuntimeError)
             }
         }
