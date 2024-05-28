@@ -23,7 +23,8 @@ pub fn disassemble_instruction(chunk: &Chunk, offset: usize) {
     match instruction {
         OpCode::Return | OpCode::Negate |
         OpCode::Add | OpCode::Substract |
-        OpCode::Multiply | OpCode::Divide 
+        OpCode::Multiply | OpCode::Divide |
+        OpCode::Nil | OpCode::True | OpCode::False
             => eprintln!("{:?}", instruction),
         OpCode::Constant(id) => {
             let val = &chunk.constants()[*id as usize];

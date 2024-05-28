@@ -176,6 +176,7 @@ impl<'s> Into<ParseRule<'s>> for TokenType {
             Self::Slash => parse_rule!(None, binary, Factor),
             Self::Star => parse_rule!(None, binary, Factor),
             Self::Number => parse_rule!(number, None, None),
+            Self::False | Self::True | Self::Nil => parse_rule!(literal, None, None),
             _ => parse_rule!(None, None, None),
         }
     }
@@ -258,6 +259,15 @@ impl<'s> Compiler<'s> {
             TokenType::Minus => self.emit(OpCode::Substract),
             TokenType::Star => self.emit(OpCode::Multiply),
             TokenType::Slash => self.emit(OpCode::Divide),
+            _ => unreachable!(),
+        }
+    }
+
+    fn literal(&mut self) {
+        match self.parser.previous.as_ref().unwrap().token_type {
+            TokenType::False => self.emit(OpCode::False),
+            TokenType::True => self.emit(OpCode::True),
+            TokenType::Nil => self.emit(OpCode::Nil),
             _ => unreachable!(),
         }
     }

@@ -73,6 +73,9 @@ impl VM {
 
                     self.push(const_val.clone());
                 },
+                OpCode::Nil => self.push(Value::Nil),
+                OpCode::True => self.push(Value::Bool(true)),
+                OpCode::False => self.push(Value::Bool(false)),
                 OpCode::Add => self.binary_op(ops::Add::add)?,
                 OpCode::Substract => self.binary_op(ops::Sub::sub)?,
                 OpCode::Multiply => self.binary_op(ops::Mul::mul)?,
