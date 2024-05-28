@@ -2,10 +2,16 @@ use std::fmt::Display;
 use std::ops;
 
 #[derive(Clone, Debug)]
-pub enum  Value {
+pub enum Value {
     Nil,
     Bool(bool),
     Number(f64),
+}
+
+impl Value {
+    pub fn is_falsey(&self) -> bool {
+        matches!(self, Self::Nil | Self::Bool(false))
+    }
 }
 
 impl Display for Value {
@@ -70,5 +76,13 @@ impl ops::Div for Value {
             (Self::Number(lhs), Self::Number(rhs)) => Self::Number(lhs / rhs),
             _ => panic!("Cannot divide non-number Values")
         }
+    }
+}
+
+impl ops::Not for Value {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        Self::Bool(self.is_falsey())
     }
 }

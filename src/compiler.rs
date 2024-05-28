@@ -177,6 +177,7 @@ impl<'s> Into<ParseRule<'s>> for TokenType {
             Self::Star => parse_rule!(None, binary, Factor),
             Self::Number => parse_rule!(number, None, None),
             Self::False | Self::True | Self::Nil => parse_rule!(literal, None, None),
+            Self::Bang => parse_rule!(unary, None, None),
             _ => parse_rule!(None, None, None),
         }
     }
@@ -289,6 +290,7 @@ impl<'s> Compiler<'s> {
         self.parse_precedence(Precedence::Unary);
 
         match operator_type {
+            TokenType::Bang => self.emit(OpCode::Not),
             TokenType::Minus => self.emit(OpCode::Negate),
             _ => unreachable!(),
         }

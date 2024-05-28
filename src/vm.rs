@@ -80,6 +80,10 @@ impl VM {
                 OpCode::Substract => self.binary_op(ops::Sub::sub)?,
                 OpCode::Multiply => self.binary_op(ops::Mul::mul)?,
                 OpCode::Divide => self.binary_op(ops::Div::div)?,
+                OpCode::Not => {
+                    let val = self.pop();
+                    self.push(!val);
+                }
             }
         }
     }
