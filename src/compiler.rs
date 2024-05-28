@@ -67,16 +67,10 @@ impl<'s> Parser<'s> {
             return;
         }
         self.panic_mode = true;
-        self.had_error = true;
 
         let token = match source {
-            ErrorSource::Here => {
-                eprintln!("[line {}]: {}", self.scanner.line, message);
-                return;
-            },
             ErrorSource::Current => self.current.as_ref(),
             ErrorSource::Previous => self.previous.as_ref(),
-            
         };
 
         match token {
@@ -87,6 +81,8 @@ impl<'s> Parser<'s> {
                 eprintln!("[line {}] Error at end: {}", self.scanner.line, message)
             }
         }
+
+        self.had_error = true;
     }
 }
 
