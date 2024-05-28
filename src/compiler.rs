@@ -14,7 +14,6 @@ struct Parser<'s> {
 enum ErrorSource {
     Current,
     Previous,
-    Here,
 }
 
 impl<'s> Parser<'s> {
@@ -53,10 +52,6 @@ impl<'s> Parser<'s> {
         else {
             self.error_at_current(message);
         }
-    }
-
-    pub fn error_message(&mut self, message: &'static str) {
-        self.error_at(ErrorSource::Here, message);
     }
 
     pub fn error(&mut self, message: &'static str) {

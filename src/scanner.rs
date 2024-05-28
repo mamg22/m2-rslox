@@ -207,10 +207,6 @@ impl<'s> Scanner<'s> {
         }
     }
 
-    pub fn at_end(&self) -> bool {
-        self.source.is_empty()
-    }
-
     fn advance(&mut self, offset: usize) {
         self.source = &self.source[offset..];
     }
