@@ -1,4 +1,4 @@
-# m2-pylox
+# m2-rslox
 
 This is a port of the bytecode interpreter for the Lox programming language featured in the [Crafting Interpreters](https://craftinginterpreters.com/) book.
 
